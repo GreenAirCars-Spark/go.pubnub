@@ -7,9 +7,6 @@ package messaging
 //websockets instead of channels
 
 import (
-	"golang.org/x/net/context"
-	"google.golang.org/appengine/urlfetch"
-	"google.golang.org/appengine/log"
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
@@ -22,6 +19,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/sessions"
+	"golang.org/x/net/context"
+	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/urlfetch"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -253,8 +253,8 @@ func SetSessionKeys(context context.Context, w http.ResponseWriter, r *http.Requ
 // DeleteSession deletes the session that stores the pubInstance
 // it accepts
 //  context.Context
-//  http.ResponseWriter 
-//  *http.Request 
+//  http.ResponseWriter
+//  *http.Request
 //  secret Key
 func DeleteSession(context context.Context, w http.ResponseWriter, r *http.Request, secKey string) {
 	initStore(secKey)
@@ -270,7 +270,7 @@ func DeleteSession(context context.Context, w http.ResponseWriter, r *http.Reque
 }
 
 // GetSessionsOptionsObject sets common Path, Age and HttpOnly options for the sessions.
-// It returns the *sessions.Options object 
+// It returns the *sessions.Options object
 func GetSessionsOptionsObject(age int) *sessions.Options {
 	return &sessions.Options{
 		Path:     "/",
@@ -320,14 +320,14 @@ func New(context context.Context, uuid string, w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	if pubInstance == nil {
-		pubKey := publishKey
-		subKey := subscribeKey
-		secKey := secretKey
-		// log.Infof(context, "Creating NEW session")
-		pubInstance = NewPubnub(context, w, r, pubKey, subKey, secKey, cipher, ssl, uuid)
-		writeSession(context, w, r, pubInstance, session)
-	}
+	//if pubInstance == nil {
+	pubKey := publishKey
+	subKey := subscribeKey
+	secKey := secretKey
+	// log.Infof(context, "Creating NEW session")
+	pubInstance = NewPubnub(context, w, r, pubKey, subKey, secKey, cipher, ssl, uuid)
+	writeSession(context, w, r, pubInstance, session)
+	//}
 
 	return pubInstance
 }
@@ -389,19 +389,19 @@ func saveSession(context context.Context, w http.ResponseWriter, r *http.Request
 // isPresenceHeartbeatRunning a variable to keep a check on the presence heartbeat's status
 // Mutex to lock the operations on the instance
 type Pubnub struct {
-	Origin            string
-	PublishKey        string
-	SubscribeKey      string
-	SecretKey         string
-	CipherKey         string
-	AuthenticationKey string
-	IsSSL             bool
-	Uuid              string
-	subscribedChannels         string
-	TimeToken      string
-	SentTimeToken  string
-	ResetTimeToken bool
-	UserState map[string]map[string]interface{}
+	Origin             string
+	PublishKey         string
+	SubscribeKey       string
+	SecretKey          string
+	CipherKey          string
+	AuthenticationKey  string
+	IsSSL              bool
+	Uuid               string
+	subscribedChannels string
+	TimeToken          string
+	SentTimeToken      string
+	ResetTimeToken     bool
+	UserState          map[string]map[string]interface{}
 }
 
 // PubnubUnitTest structure used to expose some data for unit tests.
@@ -2187,7 +2187,7 @@ func (pub *Pubnub) initTrans(ctx context.Context, w http.ResponseWriter, r *http
 
 	newCtx, _ := context.WithTimeout(ctx, deadline)
 	transport := &urlfetch.Transport{
-		Context:  newCtx,
+		Context: newCtx,
 	}
 
 	return transport
@@ -2278,18 +2278,18 @@ func (pub *Pubnub) connect(context context.Context, w http.ResponseWriter, r *ht
 					return contents, response.StatusCode, nil
 				}
 				log.Errorf(context, fmt.Sprintf("err %s", e.Error()))
-				
+
 				return nil, response.StatusCode, e
 			}
 			log.Errorf(context, fmt.Sprintf("err %s", err2.Error()))
-			
+
 			if response != nil {
 				log.Errorf(context, fmt.Sprintf("httpRequest: %s, response.StatusCode: %d", err2.Error(), response.StatusCode))
 				return nil, response.StatusCode, err2
 			}
 			log.Errorf(context, fmt.Sprintf("httpRequest: %s", err2.Error()))
 			return nil, 0, err2
-		} 
+		}
 		log.Errorf(context, fmt.Sprintf("httpRequest: %s", err.Error()))
 		return nil, 0, err
 	}
@@ -2302,14 +2302,14 @@ func (pub *Pubnub) connect(context context.Context, w http.ResponseWriter, r *ht
 // data: data to pad as byte array.
 // returns the padded data as byte array.
 func padWithPKCS7(data []byte) []byte {
-    blocklen := 16
-    padlen := 1
-    for ((len(data) + padlen) % blocklen) != 0 {
-        padlen = padlen + 1
-    }
+	blocklen := 16
+	padlen := 1
+	for ((len(data) + padlen) % blocklen) != 0 {
+		padlen = padlen + 1
+	}
 
-    pad := bytes.Repeat([]byte{byte(padlen)}, padlen)
-    return append(data, pad...)
+	pad := bytes.Repeat([]byte{byte(padlen)}, padlen)
+	return append(data, pad...)
 }
 
 // unpadPKCS7 unpads the data as per the PKCS7 standard
@@ -2318,22 +2318,22 @@ func padWithPKCS7(data []byte) []byte {
 // returns the unpadded data as byte array.
 func unpadPKCS7(data []byte) ([]byte, error) {
 	blocklen := 16
-    if len(data)%blocklen != 0 || len(data) == 0 {
-        return nil, fmt.Errorf("invalid data len %d", len(data))
-    }
-    padlen := int(data[len(data)-1])
-    if padlen > blocklen || padlen == 0 {
-        return nil, fmt.Errorf("padding is invalid")
-    }
-    // check padding
-    pad := data[len(data)-padlen:]
-    for i := 0; i < padlen; i++ {
-        if pad[i] != byte(padlen) {
-            return nil, fmt.Errorf("padding is invalid")
-        }
-    }
+	if len(data)%blocklen != 0 || len(data) == 0 {
+		return nil, fmt.Errorf("invalid data len %d", len(data))
+	}
+	padlen := int(data[len(data)-1])
+	if padlen > blocklen || padlen == 0 {
+		return nil, fmt.Errorf("padding is invalid")
+	}
+	// check padding
+	pad := data[len(data)-padlen:]
+	for i := 0; i < padlen; i++ {
+		if pad[i] != byte(padlen) {
+			return nil, fmt.Errorf("padding is invalid")
+		}
+	}
 
-    return data[:len(data)-padlen], nil
+	return data[:len(data)-padlen], nil
 }
 
 // getHmacSha256 creates the cipher key hashed against SHA256.
@@ -2438,8 +2438,8 @@ func DecryptString(cipherKey string, message string) (retVal interface{}, err er
 	}()
 	decrypted := make([]byte, len(value))
 	decrypter.CryptBlocks(decrypted, value)
-	val, err := unpadPKCS7(decrypted) 
-	if(err != nil){
+	val, err := unpadPKCS7(decrypted)
+	if err != nil {
 		return "***decrypt error***", fmt.Errorf("decrypt error: %s", err)
 	}
 	return fmt.Sprintf("%s", string(val)), nil
