@@ -874,7 +874,7 @@ func (pub *Pubnub) sendPublishRequest(context context.Context, w http.ResponseWr
 
 	u := &url.URL{Path: string(jsonBytes)}
 	encodedPath := u.String()
-	log.Infof(context, fmt.Sprintf("Publish: json: %s, encoded: %s", string(jsonBytes), encodedPath))
+	//log.Infof(context, fmt.Sprintf("Publish: json: %s, encoded: %s", string(jsonBytes), encodedPath))
 
 	publishURL := fmt.Sprintf("%s%s", publishURLString, encodedPath)
 	publishURL = fmt.Sprintf("%s?%s&uuid=%s%s", publishURL, sdkIdentificationParam, pub.GetUUID(), pub.addAuthParam(true))
