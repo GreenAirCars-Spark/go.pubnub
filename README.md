@@ -1,3 +1,5 @@
+Forked from https://github.com/pubnub/go
+
 ## Contact support@pubnub.com for all questions
 
 #PubNub 3.6 client for Go 1.0.3, 1.1, 1.3, 1.3.1 and Google App Engine
